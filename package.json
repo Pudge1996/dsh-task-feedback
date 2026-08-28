@@ -1,0 +1,47 @@
+{
+  "name": "dsh-status-indication",
+  "version": "0.1.0",
+  "description": "Live session status on the browser tab favicon — green idle, blue running, red when waiting for you.",
+  "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "favicon",
+    "status",
+    "indicator"
+  ],
+  "license": "MIT",
+  "author": "",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.14"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
