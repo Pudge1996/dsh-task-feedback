@@ -1,14 +1,17 @@
 /**
  * dsh-status-indication — client half.
  *
- * When the browser tab is hidden, replaces the favicon with a double-circle
- * dot matching the current session's status so you can glance at the tab bar
- * and know what's happening:
+ * When the browser tab is hidden AND the user is inside a session page
+ * (detected via document.title containing " — " per DSH's DocumentTitle
+ * convention), replaces the favicon with a double-circle dot matching the
+ * current session's status so you can glance at the tab bar and know what's
+ * happening:
  *   green  — idle / completed
  *   blue   — running (agent or subagent)
  *   amber  — waiting for approval, plan review, or question answer
  *
- * When the tab is visible again the original favicon is restored immediately.
+ * When the tab is visible again, or on the welcome page, the original
+ * favicon is restored immediately.
  *
  * Zero dependencies beyond the built-in `ctx.sessions` service.  No React, no
  * slots, no CSS — a single ctx.effect() with DOM access.
@@ -19,30 +22,28 @@
 
 /** Pure inline SVG data URI for one state dot.
  *  All states share the same double-circle layout:
- *    outer circle (32px / r=16) — same 500 colour at 0.1 opacity
- *    inner circle (22px / r=11) — 500-level fill, leaving a 5 px translucent ring
+ *    outer circle (32px / r=16) — same 500 colour at 0.2 opacity
+ *    inner circle (20px / r=10) — 500-level fill, leaving a 6 px translucent ring
  */
 function dotSvg(state) {
   const rgb = {
     done:    '34, 197, 94',   // green-500
     warning: '245, 158, 11',  // amber-500
     ongoing: '65, 118, 230',  // deepseek-500
-    error:   '239, 68, 68',   // red-500
   }
   const c = rgb[state] ?? rgb.done
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <circle cx="16" cy="16" r="16" fill="rgba(${c},0.2)" />
-  <circle cx="16" cy="16" r="11" fill="rgb(${c})" />
+  <circle cx="16" cy="16" r="10" fill="rgb(${c})" />
 </svg>`
 
   return 'data:image/svg+xml,' + encodeURIComponent(svg)
 }
 
-// Four precomputed URIs
+// Precomputed URIs for the three active states
 const DONE    = dotSvg('done')
 const WARNING = dotSvg('warning')
-const ERROR   = dotSvg('error')
 const ONGOING = dotSvg('ongoing')
 
 /**
@@ -95,8 +96,11 @@ export function apply(ctx) {
   const originalHref = link.href
 
   // Compute the dot favicon href for the current session state, or null
-  // when there is no active session (→ fall back to original).
+  // when there is no active session or we're on the welcome page.
+  // DSH's DocumentTitle sets session pages as "${title} — ${productTitle}",
+  // while the welcome page is just the product title (no " — " separator).
   function dotForCurrent(list) {
+    if (!document.title.includes(' — ')) return null
     const state = list.getSnapshot()
     const session = state.current ? state.byId[state.current] : undefined
     if (!session) return null
