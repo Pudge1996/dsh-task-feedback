@@ -15,14 +15,13 @@ export const zh = {
   soundHeading: '音效',
   soundScopeTitle: '触发音效的场景',
   soundScopeDescription: '选择在什么情况下播放音效通知。',
-  scopeNone: '无音效',
-  scopeHidden: '仅当页面不可见时',
   scopeAlways: '全部',
+  scopeHidden: '仅当页面不可见时',
   soundWarningTitle: '询问时音效',
   soundWarningDescription: '会话需要你介入时播放的音效。',
   soundDoneTitle: '已完成音效',
   soundDoneDescription: '任务完成时播放的音效。',
-  soundNone: '无',
+  soundNone: '无音效',
 }
 
 /** English dictionary. */
@@ -40,9 +39,8 @@ export const en = {
   soundHeading: 'Sound',
   soundScopeTitle: 'When to play sounds',
   soundScopeDescription: 'Notification sounds play when your attention is needed or the current task completes.',
-  scopeNone: 'None',
-  scopeHidden: 'Only when hidden',
   scopeAlways: 'Always',
+  scopeHidden: 'Only when hidden',
   soundWarningTitle: 'Needs your input',
   soundWarningDescription: 'Plays when the session needs your attention.',
   soundDoneTitle: 'Task done',

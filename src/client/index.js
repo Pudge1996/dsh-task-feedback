@@ -28,19 +28,9 @@
  */
 
 import { StatusIndicatorSection, readSoundWarning, readSoundDone, readSoundScope, readStyle } from './StatusIndicatorSection.js'
-import { playSound } from './sounds.js'
+import { playSound, soundLabelKey } from './sounds.js'
 import { en, zh } from './locales.js'
 import { PATCHES } from './procedural-patches.js'
-
-/**
- * Build a sound label locale key from a sound id.
- * 'none' → 'soundNone', 'procedural-bell' → 'soundProceduralBell'
- */
-function soundLabelKey(id) {
-  if (id === 'none') return 'soundNone'
-  const pascal = id.replace(/(?:^|-)([a-z])/g, (_, c) => c.toUpperCase())
-  return 'sound' + pascal
-}
 
 // Augment locale dictionaries with patch sound labels.
 for (const p of PATCHES) {
@@ -272,12 +262,11 @@ export function apply(ctx) {
 
   /**
    * Check for state transitions and play the appropriate sound.
-   * Respects the sound scope setting: 'none' disables all sounds,
-   * 'hidden' only fires when the tab is hidden, 'always' fires regardless.
+   * Respects the sound scope setting: 'hidden' only fires when the tab
+   * is hidden, 'always' fires regardless.
    */
   function handleSound(list) {
     const scope = readSoundScope()
-    if (scope === 'none') return
     if (scope === 'hidden' && !document.hidden) return
     const state = list.getSnapshot()
     const sessionId = state.current

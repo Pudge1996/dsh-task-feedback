@@ -15,12 +15,12 @@
 
 import { createElement as h, useEffect, useRef, useState } from 'react'
 import { IconChevronDownOutline14, Menu } from '@deepseek-ai/dsh-client-ui-primitives'
-import { SOUND_IDS, playSound } from './sounds.js'
+import { playSound, soundLabelKey } from './sounds.js'
 import { PATCHES } from './procedural-patches.js'
 
 /** Sound ids for each picker, filtered by category. */
-const WARNING_IDS = ['none', ...PATCHES.filter(p => p.category === 'warning' || p.category === 'both').map(p => p.id)]
-const DONE_IDS    = ['none', ...PATCHES.filter(p => p.category === 'done'    || p.category === 'both').map(p => p.id)]
+const WARNING_IDS = [...PATCHES.filter(p => p.category === 'warning' || p.category === 'both').map(p => p.id), 'none']
+const DONE_IDS    = [...PATCHES.filter(p => p.category === 'done'    || p.category === 'both').map(p => p.id), 'none']
 
 const STYLE_KEY = 'dsh-status-indication:style'
 const SOUND_SCOPE_KEY = 'dsh-status-indication:sound-scope'
@@ -31,7 +31,7 @@ const SOUND_DONE_KEY = 'dsh-status-indication:sound-done'
 const STYLES = ['dot', 'solid-dot', 'rect']
 
 /** Valid sound scope values. */
-const SCOPE_IDS = ['none', 'hidden', 'always']
+const SCOPE_IDS = ['always', 'hidden']
 
 /** Generic localStorage helpers. */
 function readKey(key, valid, fallback) {
@@ -50,17 +50,17 @@ export function readStyle() {
 
 /** Read the persisted sound scope, defaulting to 'hidden'. */
 export function readSoundScope() {
-  return readKey(SOUND_SCOPE_KEY, SCOPE_IDS, 'hidden')
+  return readKey(SOUND_SCOPE_KEY, SCOPE_IDS, 'always')
 }
 
-/** Read the persisted warning sound, defaulting to 'none'. */
+/** Read the persisted warning sound, defaulting to 'procedural-ethereal'. */
 export function readSoundWarning() {
-  return readKey(SOUND_WARNING_KEY, WARNING_IDS, 'none')
+  return readKey(SOUND_WARNING_KEY, WARNING_IDS, 'procedural-ethereal')
 }
 
-/** Read the persisted done sound, defaulting to 'none'. */
+/** Read the persisted done sound, defaulting to 'procedural-ripple'. */
 export function readSoundDone() {
-  return readKey(SOUND_DONE_KEY, DONE_IDS, 'none')
+  return readKey(SOUND_DONE_KEY, DONE_IDS, 'procedural-ripple')
 }
 
 /**
@@ -152,17 +152,6 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix })
       ),
     }),
   )
-}
-
-/**
- * Build a sound-item label key from a sound id.
- * 'none' → 'soundNone', 'procedural-bell' → 'soundProceduralBell'
- */
-function soundLabelKey(id) {
-  if (id === 'none') return 'soundNone'
-  // Convert kebab-case to PascalCase for the locale key
-  const pascal = id.replace(/(?:^|-)([a-z])/g, (_, c) => c.toUpperCase())
-  return 'sound' + pascal
 }
 
 /**
@@ -279,8 +268,5 @@ export function StatusIndicatorSection({ t }) {
     key: 'sound-done',
   })
 
-  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow,
-    soundScope !== 'none' ? warningRow : null,
-    soundScope !== 'none' ? doneRow : null,
-  )
+  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow, warningRow, doneRow)
 }

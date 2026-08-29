@@ -36,26 +36,6 @@ export const PATCHES = [
     category: 'warning',
   },
   {
-    id: 'procedural-crisp',
-    patch: {
-      layers: [
-        {
-          source: { type: 'triangle', frequency: 468.3972596162972 },
-          envelope: { attack: 0.004, decay: 0.1226311225668731, sustain: 0, release: 0.004, curve: 'ramp' },
-          gain: 0.239,
-        },
-        {
-          source: { type: 'triangle', frequency: 342.9126622899798 },
-          envelope: { attack: 0.004, decay: 0.136744132864171, sustain: 0, release: 0.004, curve: 'ramp' },
-          gain: 0.248,
-          delay: 0.07105509310101021,
-        },
-      ],
-    },
-    label: { zh: '清脆', en: 'Crisp' },
-    category: 'warning',
-  },
-  {
     id: 'procedural-electronic',
     patch: {
       layers: [
@@ -73,6 +53,28 @@ export const PATCHES = [
       ],
     },
     label: { zh: '电子', en: 'Electronic' },
+    category: 'warning',
+  },
+  {
+    id: 'procedural-crisp',
+    patch: {
+      layers: [
+        {
+          source: { type: 'triangle', frequency: 576.427 },
+          envelope: { attack: 0.002, decay: 0.072, sustain: 0, release: 0, curve: 'ramp' },
+          gain: 0.217,
+          filter: { type: 'lowpass', frequency: 2450.799192989013, Q: 1.132 },
+        },
+        {
+          source: { type: 'triangle', frequency: 576.427 },
+          envelope: { attack: 0.002, decay: 0.191, sustain: 0, release: 0, curve: 'ramp' },
+          gain: 0.157,
+          delay: 0.147,
+          filter: { type: 'lowpass', frequency: 1069.358823338992, Q: 0.865 },
+        },
+      ],
+    },
+    label: { zh: '清脆', en: 'Crisp' },
     category: 'warning',
   },
   {
@@ -94,28 +96,6 @@ export const PATCHES = [
       ],
     },
     label: { zh: '空灵', en: 'Ethereal' },
-    category: 'warning',
-  },
-  {
-    id: 'procedural-lively',
-    patch: {
-      layers: [
-        {
-          source: { type: 'sine', frequency: 1002.4394953410563 },
-          envelope: { attack: 0.004, decay: 0.10081345381810522, sustain: 0, release: 0.004, curve: 'ramp' },
-          gain: 0.122,
-          effects: [{ type: 'delay', delay: 0.124, feedback: 0.284, wet: 0.187, lowpass: 3994 }],
-        },
-        {
-          source: { type: 'sine', frequency: 795.6370380529727 },
-          envelope: { attack: 0.004, decay: 0.2763077668131684, sustain: 0, release: 0.004, curve: 'ramp' },
-          gain: 0.134,
-          delay: 0.21464945326150184,
-          effects: [{ type: 'delay', delay: 0.124, feedback: 0.284, wet: 0.187, lowpass: 3994 }],
-        },
-      ],
-    },
-    label: { zh: '跳跃', en: 'Lively' },
     category: 'warning',
   },
   {
@@ -147,6 +127,28 @@ export const PATCHES = [
     label: { zh: '弹振', en: 'Bounce' },
     category: 'warning',
   },
+  {
+    id: 'procedural-lively',
+    patch: {
+      layers: [
+        {
+          source: { type: 'sine', frequency: 1002.4394953410563 },
+          envelope: { attack: 0.004, decay: 0.10081345381810522, sustain: 0, release: 0.004, curve: 'ramp' },
+          gain: 0.122,
+          effects: [{ type: 'delay', delay: 0.124, feedback: 0.284, wet: 0.187, lowpass: 3994 }],
+        },
+        {
+          source: { type: 'sine', frequency: 795.6370380529727 },
+          envelope: { attack: 0.004, decay: 0.2763077668131684, sustain: 0, release: 0.004, curve: 'ramp' },
+          gain: 0.134,
+          delay: 0.21464945326150184,
+          effects: [{ type: 'delay', delay: 0.124, feedback: 0.284, wet: 0.187, lowpass: 3994 }],
+        },
+      ],
+    },
+    label: { zh: '跳跃', en: 'Lively' },
+    category: 'warning',
+  },
 
   // ── done (completed) ───────────────────────────────────────────────
   {
@@ -176,6 +178,40 @@ export const PATCHES = [
       ],
     },
     label: { zh: '浮起', en: 'Rise' },
+    category: 'done',
+  },
+  {
+    id: 'procedural-ripple',
+    patch: {
+      layers: [
+        {
+          source: { type: 'sine', frequency: 1031.59 },
+          envelope: { attack: 0.003, decay: 0.043, sustain: 0, release: 0 },
+          gain: 0.169,
+          effects: [{ type: 'delay', delay: 0.06453290823895033, feedback: 0.26049766810256514, wet: 0.1720283449660654, lowpass: 5478.705467040193 }],
+        },
+        {
+          source: { type: 'sine', frequency: 1415.171 },
+          envelope: { attack: 0.003, decay: 0.051, sustain: 0, release: 0 },
+          gain: 0.135,
+          delay: 0.1,
+        },
+        {
+          source: { type: 'sine', frequency: 1770.022 },
+          envelope: { attack: 0.003, decay: 0.076, sustain: 0, release: 0 },
+          gain: 0.152,
+          delay: 0.191,
+        },
+        {
+          source: { type: 'sine', frequency: 515.795 },
+          envelope: { attack: 0.003, decay: 0.043, sustain: 0, release: 0 },
+          gain: 0.093,
+          effects: [{ type: 'delay', delay: 0.06453290823895033, feedback: 0.26049766810256514, wet: 0.1720283449660654, lowpass: 5478.705467040193 }],
+          delay: 0,
+        },
+      ],
+    },
+    label: { zh: '涟漪', en: 'Ripple' },
     category: 'done',
   },
   {
@@ -237,35 +273,6 @@ export const PATCHES = [
     category: 'done',
   },
   {
-    id: 'procedural-renewal',
-    patch: {
-      layers: [
-        {
-          source: { type: 'sine', frequency: 377.896 },
-          envelope: { attack: 0.005, decay: 0.123, sustain: 0, release: 0 },
-          gain: 0.105,
-          effects: [{ type: 'delay', delay: 0.14131938412805864, feedback: 0.3644189038448571, wet: 0.17837739832942467, lowpass: 2981.4611714315356 }],
-        },
-        {
-          source: { type: 'sine', frequency: 566.205 },
-          envelope: { attack: 0.002, decay: 0.127, sustain: 0, release: 0 },
-          gain: 0.138,
-          delay: 0.087,
-          effects: [{ type: 'delay', delay: 0.14131938412805864, feedback: 0.3644189038448571, wet: 0.17837739832942467, lowpass: 2981.4611714315356 }],
-        },
-        {
-          source: { type: 'sine', frequency: 750 },
-          envelope: { attack: 0.002, decay: 0.322, sustain: 0, release: 0 },
-          gain: 0.102,
-          delay: 0.175,
-          effects: [{ type: 'delay', delay: 0.14131938412805864, feedback: 0.3644189038448571, wet: 0.17837739832942467, lowpass: 2981.4611714315356 }],
-        },
-      ],
-    },
-    label: { zh: '新生', en: 'Renewal' },
-    category: 'done',
-  },
-  {
     id: 'procedural-bloom',
     patch: {
       layers: [
@@ -295,37 +302,32 @@ export const PATCHES = [
     category: 'done',
   },
   {
-    id: 'procedural-ripple',
+    id: 'procedural-renewal',
     patch: {
       layers: [
         {
-          source: { type: 'sine', frequency: 1031.59 },
-          envelope: { attack: 0.003, decay: 0.043, sustain: 0, release: 0 },
-          gain: 0.169,
-          effects: [{ type: 'delay', delay: 0.06453290823895033, feedback: 0.26049766810256514, wet: 0.1720283449660654, lowpass: 5478.705467040193 }],
+          source: { type: 'sine', frequency: 377.896 },
+          envelope: { attack: 0.005, decay: 0.123, sustain: 0, release: 0 },
+          gain: 0.105,
+          effects: [{ type: 'delay', delay: 0.14131938412805864, feedback: 0.3644189038448571, wet: 0.17837739832942467, lowpass: 2981.4611714315356 }],
         },
         {
-          source: { type: 'sine', frequency: 1415.171 },
-          envelope: { attack: 0.003, decay: 0.051, sustain: 0, release: 0 },
-          gain: 0.135,
-          delay: 0.1,
+          source: { type: 'sine', frequency: 566.205 },
+          envelope: { attack: 0.002, decay: 0.127, sustain: 0, release: 0 },
+          gain: 0.138,
+          delay: 0.087,
+          effects: [{ type: 'delay', delay: 0.14131938412805864, feedback: 0.3644189038448571, wet: 0.17837739832942467, lowpass: 2981.4611714315356 }],
         },
         {
-          source: { type: 'sine', frequency: 1770.022 },
-          envelope: { attack: 0.003, decay: 0.076, sustain: 0, release: 0 },
-          gain: 0.152,
-          delay: 0.191,
-        },
-        {
-          source: { type: 'sine', frequency: 515.795 },
-          envelope: { attack: 0.003, decay: 0.043, sustain: 0, release: 0 },
-          gain: 0.093,
-          effects: [{ type: 'delay', delay: 0.06453290823895033, feedback: 0.26049766810256514, wet: 0.1720283449660654, lowpass: 5478.705467040193 }],
-          delay: 0,
+          source: { type: 'sine', frequency: 750 },
+          envelope: { attack: 0.002, decay: 0.322, sustain: 0, release: 0 },
+          gain: 0.102,
+          delay: 0.175,
+          effects: [{ type: 'delay', delay: 0.14131938412805864, feedback: 0.3644189038448571, wet: 0.17837739832942467, lowpass: 2981.4611714315356 }],
         },
       ],
     },
-    label: { zh: '涟漪', en: 'Ripple' },
+    label: { zh: '新生', en: 'Renewal' },
     category: 'done',
   },
 ]

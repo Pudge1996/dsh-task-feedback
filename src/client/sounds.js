@@ -24,8 +24,15 @@ export const SOUNDS = Object.fromEntries([
   ...PATCHES.map((p) => [p.id, () => playPatch(p.patch)]),
 ])
 
-/** Valid sound ids — derived from PATCHES. */
-export const SOUND_IDS = ['none', ...PATCHES.map((p) => p.id)]
+/**
+ * Build a sound label locale key from a sound id.
+ * 'none' → 'soundNone', 'procedural-bell' → 'soundProceduralBell'
+ */
+export function soundLabelKey(id) {
+  if (id === 'none') return 'soundNone'
+  const pascal = id.replace(/(?:^|-)([a-z])/g, (_, c) => c.toUpperCase())
+  return 'sound' + pascal
+}
 
 /**
  * Play a sound by id.  Returns a promise that resolves when the sound
