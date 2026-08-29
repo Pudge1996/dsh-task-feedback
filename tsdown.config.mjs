@@ -15,6 +15,10 @@ const ID = 'dsh-status-indication'
 /** Module specifiers the harness shell shares into the frozen module table. */
 const PLATFORM_MODULES = [
   '@deepseek-ai/cordis',
+  'react',
+  'react/jsx-runtime',
+  '@deepseek-ai/dsh-client-ui-slots',
+  '@deepseek-ai/dsh-client-ui-primitives',
 ]
 
 const CLIENT_EXTERNALS = [
