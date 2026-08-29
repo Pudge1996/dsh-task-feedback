@@ -6,14 +6,21 @@
  * pickers for warning and done notifications. All selections are
  * persisted to localStorage and take effect immediately.
  *
- * Layout follows the dsh-dv-row pattern (title + description on the
- * left, Menu on the right).
+ * Sound ids are sourced from sounds.js (which derives them from
+ * procedural-patches.js).  Patch labels are registered into the
+ * locale system by index.js via the `soundXxx` keys.
  *
  * No JSX — plain React.createElement.
  */
 
-import { createElement as h, useState } from 'react'
+import { createElement as h, useEffect, useRef, useState } from 'react'
 import { IconChevronDownOutline14, Menu } from '@deepseek-ai/dsh-client-ui-primitives'
+import { SOUND_IDS, playSound } from './sounds.js'
+import { PATCHES } from './procedural-patches.js'
+
+/** Sound ids for each picker, filtered by category. */
+const WARNING_IDS = ['none', ...PATCHES.filter(p => p.category === 'warning' || p.category === 'both').map(p => p.id)]
+const DONE_IDS    = ['none', ...PATCHES.filter(p => p.category === 'done'    || p.category === 'both').map(p => p.id)]
 
 const STYLE_KEY = 'dsh-status-indication:style'
 const SOUND_SCOPE_KEY = 'dsh-status-indication:sound-scope'
@@ -25,9 +32,6 @@ const STYLES = ['dot', 'solid-dot', 'rect']
 
 /** Valid sound scope values. */
 const SCOPE_IDS = ['none', 'hidden', 'always']
-
-/** Valid sound ids. */
-const SOUND_IDS = ['none', 'ding', 'dong', 'chime']
 
 /** Generic localStorage helpers. */
 function readKey(key, valid, fallback) {
@@ -51,12 +55,62 @@ export function readSoundScope() {
 
 /** Read the persisted warning sound, defaulting to 'none'. */
 export function readSoundWarning() {
-  return readKey(SOUND_WARNING_KEY, SOUND_IDS, 'none')
+  return readKey(SOUND_WARNING_KEY, WARNING_IDS, 'none')
 }
 
 /** Read the persisted done sound, defaulting to 'none'. */
 export function readSoundDone() {
-  return readKey(SOUND_DONE_KEY, SOUND_IDS, 'none')
+  return readKey(SOUND_DONE_KEY, DONE_IDS, 'none')
+}
+
+/**
+ * Milliseconds before a hover triggers a preview play.
+ * Prevents brief pass-throughs (e.g. dragging to the last item) from firing.
+ */
+const HOVER_PREVIEW_MS = 100
+
+/**
+ * Hook: discover `[role="menuitem"]` buttons that contain a `data-sound-id`
+ * marker and attach `mouseenter`/`mouseleave` listeners directly on them.
+ * Uses `requestAnimationFrame` polling so buttons are discovered as soon as
+ * the Menu portal renders them.
+ *
+ * `mouseenter`/`mouseleave` do not bubble — child→child moves inside the
+ * button are invisible to the listener, so there is no penetration to
+ * suppress.  The logic is simply: enter → start 100ms timer → play;
+ * leave → cancel timer.
+ */
+function useSoundHoverPreview() {
+  const timerRef = useRef(null)
+  const attachedRef = useRef(new Set())
+
+  useEffect(() => {
+    let raf
+    const poll = () => {
+      const markers = document.querySelectorAll('[data-sound-id]')
+      for (const m of markers) {
+        const id = m.getAttribute('data-sound-id')
+        if (!id || id === 'none') continue
+        const btn = m.closest('[role="menuitem"]')
+        if (!btn || attachedRef.current.has(btn)) continue
+        attachedRef.current.add(btn)
+
+        btn.addEventListener('mouseenter', () => {
+          clearTimeout(timerRef.current)
+          timerRef.current = setTimeout(() => { playSound(id) }, HOVER_PREVIEW_MS)
+        })
+        btn.addEventListener('mouseleave', () => {
+          clearTimeout(timerRef.current)
+        })
+      }
+      raf = requestAnimationFrame(poll)
+    }
+    raf = requestAnimationFrame(poll)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(timerRef.current)
+    }
+  }, [])
 }
 
 /**
@@ -93,7 +147,7 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix })
         'aria-expanded': open,
         onClick: () => { setOpen((v) => !v) },
       },
-        t(value === 'none' ? prefix + 'None' : prefix + value.charAt(0).toUpperCase() + value.slice(1)),
+        t(value === 'none' ? prefix + 'None' : labelPrefix === 'scope' ? prefix + value.charAt(0).toUpperCase() + value.slice(1) : t(soundLabelKey(value))),
         h(IconChevronDownOutline14, { className: 'dsh-si-chevron' }),
       ),
     }),
@@ -101,10 +155,23 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix })
 }
 
 /**
- * Render the full settings section: favicon style + two sound pickers.
+ * Build a sound-item label key from a sound id.
+ * 'none' → 'soundNone', 'procedural-bell' → 'soundProceduralBell'
+ */
+function soundLabelKey(id) {
+  if (id === 'none') return 'soundNone'
+  // Convert kebab-case to PascalCase for the locale key
+  const pascal = id.replace(/(?:^|-)([a-z])/g, (_, c) => c.toUpperCase())
+  return 'sound' + pascal
+}
+
+/**
+ * Render the full settings section: favicon style + sound scope + two sound pickers.
  * @param {{ t: (key: string) => string }} props
  */
 export function StatusIndicatorSection({ t }) {
+  useSoundHoverPreview()
+
   const [style, setStyle] = useState(readStyle)
   const [styleOpen, setStyleOpen] = useState(false)
 
@@ -116,9 +183,14 @@ export function StatusIndicatorSection({ t }) {
 
   const scopeItems = SCOPE_IDS.map((id) => ({ id, label: t('scope' + id.charAt(0).toUpperCase() + id.slice(1)) }))
 
-  const soundItems = SOUND_IDS.map((id) => ({
+  const soundWarningItems = WARNING_IDS.map((id) => ({
     id,
-    label: id === 'none' ? t('soundNone') : t('sound' + id.charAt(0).toUpperCase() + id.slice(1)),
+    label: h('span', { 'data-sound-id': id }, t(soundLabelKey(id))),
+  }))
+
+  const soundDoneItems = DONE_IDS.map((id) => ({
+    id,
+    label: h('span', { 'data-sound-id': id }, t(soundLabelKey(id))),
   }))
 
   const handleStyleSelect = (id) => {
@@ -192,7 +264,7 @@ export function StatusIndicatorSection({ t }) {
     descKey: 'soundWarningDescription',
     value: soundWarning,
     onChange: handleSoundWarningChange,
-    items: soundItems,
+    items: soundWarningItems,
     key: 'sound-warning',
   })
 
@@ -203,9 +275,12 @@ export function StatusIndicatorSection({ t }) {
     descKey: 'soundDoneDescription',
     value: soundDone,
     onChange: handleSoundDoneChange,
-    items: soundItems,
+    items: soundDoneItems,
     key: 'sound-done',
   })
 
-  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow, soundScope !== 'none' && warningRow, soundScope !== 'none' && doneRow)
+  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow,
+    soundScope !== 'none' ? warningRow : null,
+    soundScope !== 'none' ? doneRow : null,
+  )
 }

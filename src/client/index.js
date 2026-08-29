@@ -30,6 +30,24 @@
 import { StatusIndicatorSection, readSoundWarning, readSoundDone, readSoundScope, readStyle } from './StatusIndicatorSection.js'
 import { playSound } from './sounds.js'
 import { en, zh } from './locales.js'
+import { PATCHES } from './procedural-patches.js'
+
+/**
+ * Build a sound label locale key from a sound id.
+ * 'none' → 'soundNone', 'procedural-bell' → 'soundProceduralBell'
+ */
+function soundLabelKey(id) {
+  if (id === 'none') return 'soundNone'
+  const pascal = id.replace(/(?:^|-)([a-z])/g, (_, c) => c.toUpperCase())
+  return 'sound' + pascal
+}
+
+// Augment locale dictionaries with patch sound labels.
+for (const p of PATCHES) {
+  const key = soundLabelKey(p.id)
+  if (!zh[key]) zh[key] = p.label.zh
+  if (!en[key]) en[key] = p.label.en
+}
 
 // StateDot states as defined in @deepseek-ai/dsh-client-ui-primitives StateDot.tsx
 // done | warning | ongoing | error
