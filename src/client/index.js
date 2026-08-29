@@ -191,6 +191,13 @@ export function apply(ctx) {
   let previousNotification = undefined
 
   /**
+   * The session id that `previousNotification` belongs to, used to
+   * suppress spurious sounds when the user navigates between sessions
+   * (session A's state is not a transition from session B's state).
+   */
+  let previousSessionId = undefined
+
+  /**
    * Whether the current session has a pending user interaction.
    * From 0.1.2 alpha, `pendingInteraction` was removed from SessionSummary
    * and moved to a separate `ctx.uiSession.pendingInteractions` Map.
@@ -254,8 +261,18 @@ export function apply(ctx) {
     const scope = readSoundScope()
     if (scope === 'none') return
     if (scope === 'hidden' && !document.hidden) return
+    const state = list.getSnapshot()
+    const sessionId = state.current
     const current = notificationState(list)
     if (current === null) return
+
+    // Switched to a different session — seed the tracker silently.
+    if (sessionId !== previousSessionId) {
+      previousSessionId = sessionId
+      previousNotification = current
+      return
+    }
+
     if (current === previousNotification) return
 
     // No previous state means we just initialised or just switched back —
@@ -305,6 +322,7 @@ export function apply(ctx) {
         // Clear the baseline and sound tracker when the tab becomes visible.
         baseline = undefined
         previousNotification = undefined
+        previousSessionId = undefined
       }
       refresh(list)
     }

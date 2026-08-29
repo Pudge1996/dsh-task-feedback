@@ -207,5 +207,5 @@ export function StatusIndicatorSection({ t }) {
     key: 'sound-done',
   })
 
-  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow, warningRow, doneRow)
+  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow, soundScope !== 'none' && warningRow, soundScope !== 'none' && doneRow)
 }
