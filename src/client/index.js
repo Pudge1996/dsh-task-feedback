@@ -17,9 +17,9 @@
  * When the tab is visible again, or on the welcome page, the original
  * favicon is restored immediately.
  *
- * Sound notifications: when the tab is hidden, a state transition to
- * warning or done can trigger a short synthesised sound — configurable
- * independently in the Settings section.
+ * Sound notifications: configurable per event (warning / done) with a
+ * global sound-scope setting that controls when sounds play — never,
+ * only when the tab is hidden, or always (even when the tab is visible).
  *
  * Settings section: registers a "Status" section in the Settings side panel
  * that lets the user pick one of three indicator shapes
@@ -27,7 +27,7 @@
  * choices are persisted to localStorage and take effect immediately.
  */
 
-import { StatusIndicatorSection, readSoundWarning, readSoundDone } from './StatusIndicatorSection.js'
+import { StatusIndicatorSection, readSoundWarning, readSoundDone, readSoundScope, readStyle } from './StatusIndicatorSection.js'
 import { playSound } from './sounds.js'
 import { en, zh } from './locales.js'
 
@@ -36,15 +36,6 @@ import { en, zh } from './locales.js'
 
 /** Dictionary namespace for the settings section. */
 const NS = 'settings.statusIndicator'
-
-const STYLE_KEY = 'dsh-status-indication:style'
-const STYLES = ['dot', 'solid-dot', 'rect']
-
-/** Read the persisted favicon style, defaulting to 'dot'. */
-function readStyle() {
-  const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(STYLE_KEY) : null
-  return STYLES.includes(raw) ? raw : 'dot'
-}
 
 /** Resolve a CSS custom property to an "R, G, B" string.
  *  Returns null when the DOM isn't ready or the variable is missing. */
@@ -193,11 +184,11 @@ export function apply(ctx) {
   let baseline = undefined
 
   /**
-   * The previous derived state, used to detect transitions for sound
+   * The previous notification state, used to detect transitions for sound
    * playback.  Reset to `undefined` when the tab becomes visible so that
    * the first state change after re-hiding fires sounds again.
    */
-  let previousDerived = undefined
+  let previousNotification = undefined
 
   /**
    * Whether the current session has a pending user interaction.
@@ -225,12 +216,14 @@ export function apply(ctx) {
     return deriveState(session, runningSubs, pendingFor(state))
   }
 
-  // Compute the indicator favicon href for the current session state, or null
-  // when there is no active session, we're on the welcome page, or the
-  // baseline was terminal (no change to report).
-  // DSH's DocumentTitle sets session pages as "${title} — ${productTitle}",
-  // while the welcome page is just the product title (no " — " separator).
-  function indicatorForCurrent(list) {
+  /**
+   * Single decision point for notification state.
+   * Applies the baseline guard and warning stickiness once, so both the
+   * favicon and sound features always agree on *what* to notify.
+   * Returns null when there is nothing to report (not on a session page,
+   * no session, or the baseline was terminal).
+   */
+  function notificationState(list) {
     const s = currentDerived(list)
     if (s === null) return null
     // If the baseline was terminal (done), the session was already idle or
@@ -239,22 +232,40 @@ export function apply(ctx) {
     // Exception: pending interaction always overrides the baseline guard.
     // If the user was asked a question before switching away, keep the
     // amber indicator even after they return to a terminal state.
-    const style = readStyle()
-    if (baseline === 'warning') return s === 'ongoing' ? indicatorSvg('ongoing', style) : indicatorSvg('warning', style)
-    return indicatorSvg(s, style)
+    if (baseline === 'warning') return s === 'ongoing' ? 'ongoing' : 'warning'
+    return s
+  }
+
+  // Compute the indicator favicon href for the current notification state.
+  // DSH's DocumentTitle sets session pages as "${title} — ${productTitle}",
+  // while the welcome page is just the product title (no " — " separator).
+  function indicatorForCurrent(list) {
+    const s = notificationState(list)
+    if (s === null) return null
+    return indicatorSvg(s, readStyle())
   }
 
   /**
    * Check for state transitions and play the appropriate sound.
-   * Only fires when the tab is hidden and the derived state actually changes.
+   * Respects the sound scope setting: 'none' disables all sounds,
+   * 'hidden' only fires when the tab is hidden, 'always' fires regardless.
    */
   function handleSound(list) {
-    if (!document.hidden) return
-    const current = currentDerived(list)
+    const scope = readSoundScope()
+    if (scope === 'none') return
+    if (scope === 'hidden' && !document.hidden) return
+    const current = notificationState(list)
     if (current === null) return
-    if (current === previousDerived) return
+    if (current === previousNotification) return
 
-    previousDerived = current
+    // No previous state means we just initialised or just switched back —
+    // seed the tracker silently without playing a sound.
+    if (previousNotification === undefined) {
+      previousNotification = current
+      return
+    }
+
+    previousNotification = current
 
     if (current === 'warning') {
       const soundId = readSoundWarning()
@@ -287,13 +298,13 @@ export function apply(ctx) {
       if (document.hidden) {
         // Capture the baseline at the instant the tab is hidden.
         baseline = currentDerived(list)
-        // Seed the previous-derived tracker so the first sound only fires
+        // Seed the previous-notification tracker so the first sound only fires
         // on a genuine state change after hiding.
-        previousDerived = baseline
+        previousNotification = notificationState(list)
       } else {
         // Clear the baseline and sound tracker when the tab becomes visible.
         baseline = undefined
-        previousDerived = undefined
+        previousNotification = undefined
       }
       refresh(list)
     }

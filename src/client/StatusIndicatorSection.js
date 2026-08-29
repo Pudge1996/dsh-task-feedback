@@ -2,9 +2,9 @@
  * Status indicator settings section — browser half.
  *
  * Renders a dropdown menu (primitives.Menu) for picking one of three
- * favicon indicator shapes, plus two sound selectors for warning and
- * done notifications. All selections are persisted to localStorage
- * and take effect immediately.
+ * favicon indicator shapes, a sound scope selector, and two sound
+ * pickers for warning and done notifications. All selections are
+ * persisted to localStorage and take effect immediately.
  *
  * Layout follows the dsh-dv-row pattern (title + description on the
  * left, Menu on the right).
@@ -16,11 +16,15 @@ import { createElement as h, useState } from 'react'
 import { IconChevronDownOutline14, Menu } from '@deepseek-ai/dsh-client-ui-primitives'
 
 const STYLE_KEY = 'dsh-status-indication:style'
+const SOUND_SCOPE_KEY = 'dsh-status-indication:sound-scope'
 const SOUND_WARNING_KEY = 'dsh-status-indication:sound-warning'
 const SOUND_DONE_KEY = 'dsh-status-indication:sound-done'
 
 /** Valid style values. */
 const STYLES = ['dot', 'solid-dot', 'rect']
+
+/** Valid sound scope values. */
+const SCOPE_IDS = ['none', 'hidden', 'always']
 
 /** Valid sound ids. */
 const SOUND_IDS = ['none', 'ding', 'dong', 'chime']
@@ -40,6 +44,11 @@ export function readStyle() {
   return readKey(STYLE_KEY, STYLES, 'dot')
 }
 
+/** Read the persisted sound scope, defaulting to 'hidden'. */
+export function readSoundScope() {
+  return readKey(SOUND_SCOPE_KEY, SCOPE_IDS, 'hidden')
+}
+
 /** Read the persisted warning sound, defaulting to 'none'. */
 export function readSoundWarning() {
   return readKey(SOUND_WARNING_KEY, SOUND_IDS, 'none')
@@ -54,13 +63,15 @@ export function readSoundDone() {
  * Build a single settings row: title + description on the left,
  * a Menu dropdown on the right.
  */
-function SoundRow({ t, titleKey, descKey, value, onChange, items }) {
+function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix }) {
   const [open, setOpen] = useState(false)
 
   const handleSelect = (id) => {
     setOpen(false)
     onChange(id)
   }
+
+  const prefix = labelPrefix ?? 'sound'
 
   return h('div', { className: 'dsh-si-row' },
     h('div', { className: 'dsh-si-rowText' },
@@ -82,7 +93,7 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items }) {
         'aria-expanded': open,
         onClick: () => { setOpen((v) => !v) },
       },
-        t(value === 'none' ? 'soundNone' : 'sound' + value.charAt(0).toUpperCase() + value.slice(1)),
+        t(value === 'none' ? prefix + 'None' : prefix + value.charAt(0).toUpperCase() + value.slice(1)),
         h(IconChevronDownOutline14, { className: 'dsh-si-chevron' }),
       ),
     }),
@@ -97,10 +108,13 @@ export function StatusIndicatorSection({ t }) {
   const [style, setStyle] = useState(readStyle)
   const [styleOpen, setStyleOpen] = useState(false)
 
+  const [soundScope, setSoundScope] = useState(readSoundScope)
   const [soundWarning, setSoundWarning] = useState(readSoundWarning)
   const [soundDone, setSoundDone] = useState(readSoundDone)
 
   const styleItems = STYLES.map((value) => ({ id: value, label: t(value) }))
+
+  const scopeItems = SCOPE_IDS.map((id) => ({ id, label: t('scope' + id.charAt(0).toUpperCase() + id.slice(1)) }))
 
   const soundItems = SOUND_IDS.map((id) => ({
     id,
@@ -111,6 +125,11 @@ export function StatusIndicatorSection({ t }) {
     setStyleOpen(false)
     setStyle(id)
     writeKey(STYLE_KEY, id)
+  }
+
+  const handleSoundScopeChange = (id) => {
+    setSoundScope(id)
+    writeKey(SOUND_SCOPE_KEY, id)
   }
 
   const handleSoundWarningChange = (id) => {
@@ -154,6 +173,18 @@ export function StatusIndicatorSection({ t }) {
     }),
   )
 
+  // Sound scope row
+  const scopeRow = h(SoundRow, {
+    t,
+    titleKey: 'soundScopeTitle',
+    descKey: 'soundScopeDescription',
+    value: soundScope,
+    onChange: handleSoundScopeChange,
+    items: scopeItems,
+    labelPrefix: 'scope',
+    key: 'sound-scope',
+  })
+
   // Warning sound row
   const warningRow = h(SoundRow, {
     t,
@@ -176,5 +207,5 @@ export function StatusIndicatorSection({ t }) {
     key: 'sound-done',
   })
 
-  return h('div', null, statusHeading, styleRow, soundHeading, warningRow, doneRow)
+  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow, warningRow, doneRow)
 }
