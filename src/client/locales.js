@@ -2,14 +2,14 @@
 
 /** Simplified Chinese dictionary. */
 export const zh = {
-  nav: '状态指示',
-  title: 'Favicon 图标样式',
-  description: '当前会话页面不可见时，根据会话状态（进行中、询问、已完成）实时改变 Favicon 的样式。',
+  nav: '会话反馈',
+  title: '图标样式',
+  description: '当前会话页面不可见时，根据会话状态实时改变 Favicon 的样式。',
   dot: '小圆点',
   'solid-dot': '圆形',
   rect: '圆角矩形',
 
-  statusHeading: '状态指示',
+  statusHeading: 'Favicon',
 
   // Sound settings
   soundHeading: '音效',
@@ -27,13 +27,13 @@ export const zh = {
 /** English dictionary. */
 export const en = {
   nav: 'Status',
-  title: 'Favicon style',
-  description: 'When the current tab is hidden, the favicon reflects session state: running, waiting, or done.',
+  title: 'Favicon shape',
+  description: 'When the current tab is hidden, the favicon reflects session state.',
   dot: 'Small dot',
   'solid-dot': 'Circle',
   rect: 'Rounded rectangle',
 
-  statusHeading: 'Status',
+  statusHeading: 'Favicon',
 
   // Sound settings
   soundHeading: 'Sound',
