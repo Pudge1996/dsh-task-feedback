@@ -1,5 +1,5 @@
 /**
- * Status indicator settings section — browser half.
+ * Feedback settings section — browser half.
  *
  * Renders a dropdown menu (primitives.Menu) for picking one of three
  * favicon indicator shapes, a sound scope selector, and two sound
@@ -22,10 +22,10 @@ import { PATCHES } from './procedural-patches.js'
 const WARNING_IDS = [...PATCHES.filter(p => p.category === 'warning' || p.category === 'both').map(p => p.id), 'none']
 const DONE_IDS    = [...PATCHES.filter(p => p.category === 'done'    || p.category === 'both').map(p => p.id), 'none']
 
-const STYLE_KEY = 'dsh-status-indication:style'
-const SOUND_SCOPE_KEY = 'dsh-status-indication:sound-scope'
-const SOUND_WARNING_KEY = 'dsh-status-indication:sound-warning'
-const SOUND_DONE_KEY = 'dsh-status-indication:sound-done'
+const STYLE_KEY = 'dsh-feedback:style'
+const SOUND_SCOPE_KEY = 'dsh-feedback:sound-scope'
+const SOUND_WARNING_KEY = 'dsh-feedback:sound-warning'
+const SOUND_DONE_KEY = 'dsh-feedback:sound-done'
 
 /** Valid style values. */
 const STYLES = ['dot', 'solid-dot', 'rect']
@@ -158,7 +158,7 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix })
  * Render the full settings section: favicon style + sound scope + two sound pickers.
  * @param {{ t: (key: string) => string }} props
  */
-export function StatusIndicatorSection({ t }) {
+export function FeedbackSection({ t }) {
   useSoundHoverPreview()
 
   const [style, setStyle] = useState(readStyle)

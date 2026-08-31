@@ -1,5 +1,5 @@
 /**
- * dsh-status-indication — client half.
+ * dsh-feedback — client half.
  *
  * When the browser tab is hidden AND the user is inside a session page
  * (detected via document.title containing " — " per DSH's DocumentTitle
@@ -21,13 +21,13 @@
  * global sound-scope setting that controls when sounds play — never,
  * only when the tab is hidden, or always (even when the tab is visible).
  *
- * Settings section: registers a "Status" section in the Settings side panel
+ * Settings section: registers a "Feedback" section in the Settings side panel
  * that lets the user pick one of three indicator shapes
  * (dot, solid-dot, rect) and two sound effects (warning / done). All
  * choices are persisted to localStorage and take effect immediately.
  */
 
-import { StatusIndicatorSection, readSoundWarning, readSoundDone, readSoundScope, readStyle } from './StatusIndicatorSection.js'
+import { FeedbackSection, readSoundWarning, readSoundDone, readSoundScope, readStyle } from './FeedbackSection.js'
 import { playSound, soundLabelKey } from './sounds.js'
 import { en, zh } from './locales.js'
 import { PATCHES } from './procedural-patches.js'
@@ -43,7 +43,7 @@ for (const p of PATCHES) {
 // done | warning | ongoing | error
 
 /** Dictionary namespace for the settings section. */
-const NS = 'settings.statusIndicator'
+const NS = 'settings.feedback'
 
 /** Resolve a CSS custom property to an "R, G, B" string.
  *  Returns null when the DOM isn't ready or the variable is missing. */
@@ -165,23 +165,23 @@ export function apply(ctx) {
   const originalHref = link.href
 
   // Register locale dictionaries for the settings section.
-  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'status-indication: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'feedback: dictionaries')
 
   // Inject segmented-control styles.
   const styleEl = document.createElement('style')
-  styleEl.id = 'dsh-status-indication-settings-style'
+  styleEl.id = 'dsh-feedback-settings-style'
   styleEl.textContent = SETTINGS_CSS
   ;(document.head || document.documentElement).appendChild(styleEl)
 
-  // Contribute the "Status" section to the Settings side panel.
+  // Contribute the "Feedback" section to the Settings side panel.
   const t = ctx.locale.bind(NS)
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',
-    id: 'status-indication',
+    id: 'feedback',
     order: 20,
     label: () => t('nav'),
     locale: NS,
-  }, () => StatusIndicatorSection({ t })))
+  }, () => FeedbackSection({ t })))
 
   /**
    * The session's derived state at the moment the tab was hidden.

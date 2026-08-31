@@ -1,4 +1,4 @@
-# dsh-status-indication
+# dsh-feedback
 
 Live session status on the browser tab favicon — green idle, blue running, amber when waiting for you.
 

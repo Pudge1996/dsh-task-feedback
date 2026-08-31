@@ -1,8 +1,8 @@
-/** Copy dictionaries for the status-indication Settings section. */
+/** Copy dictionaries for the feedback Settings section. */
 
 /** Simplified Chinese dictionary. */
 export const zh = {
-  nav: '会话反馈',
+  nav: '反馈',
   title: '图标样式',
   description: '当前会话页面不可见时，根据会话状态实时改变 Favicon 的样式。',
   dot: '小圆点',
@@ -26,7 +26,7 @@ export const zh = {
 
 /** English dictionary. */
 export const en = {
-  nav: 'Status',
+  nav: 'Feedback',
   title: 'Favicon shape',
   description: 'When the current tab is hidden, the favicon reflects session state.',
   dot: 'Small dot',

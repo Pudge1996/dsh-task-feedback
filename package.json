@@ -1,5 +1,5 @@
 {
-  "name": "dsh-status-indication",
+  "name": "dsh-feedback",
   "version": "0.1.0",
   "description": "Live session status on the browser tab favicon — green idle, blue running, red when waiting for you.",
   "type": "module",
