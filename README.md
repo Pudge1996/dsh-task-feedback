@@ -19,7 +19,7 @@ dsh plugin --profile web add dsh-task-feedback
 
 切走标签页时，将 DSH 的 Favicon 改为小圆点并根据会话状态实时变色：
 
-<img width="3578" height="780" alt="image" src="https://github.com/user-attachments/assets/f01efc08-8c16-4c4d-9ecb-80e3ebcafbb1" />
+<img width="1789" height="390" alt="image" src="https://github.com/user-attachments/assets/b4d1d940-f654-4309-9f32-c15c9fd434df" />
 
 1. **绿色**：当前任务已完成
 2. **蓝色**：当前任务进行中或子代理正在运行

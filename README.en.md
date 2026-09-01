@@ -19,7 +19,7 @@ dsh plugin --profile web add dsh-task-feedback
 
 When you switch away from the tab, the DSH favicon turns into a coloured dot that reflects the current session state in real time:
 
-<img width="3578" height="780" alt="image" src="https://github.com/user-attachments/assets/32be5ec9-2e60-4309-9b10-12ad4f18ae8b" />
+<img width="1789" height="390" alt="image" src="https://github.com/user-attachments/assets/0dc9e431-5e31-4d6b-a715-41facc8f15b2" />
 
 1. **Green** — the current task has completed.
 2. **Blue** — the current task is in progress or a subagent is running.
