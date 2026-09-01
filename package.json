@@ -19,7 +19,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "prepare": "pnpm run build"
   },
   "keywords": [
     "dsh-plugin",
