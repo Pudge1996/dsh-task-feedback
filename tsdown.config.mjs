@@ -1,5 +1,5 @@
 /**
- * tsdown build for dsh-feedback.
+ * tsdown build for dsh-task-feedback.
  *
  * Two artifacts from one command:
  *   1. lib/index.js  — ESM Node host half (deps externalized; resolved against
@@ -10,7 +10,7 @@
  *      loader's injected `require`; everything else is inlined.
  */
 
-const ID = 'dsh-feedback'
+const ID = 'dsh-task-feedback'
 
 /** Module specifiers the harness shell shares into the frozen module table. */
 const PLATFORM_MODULES = [
