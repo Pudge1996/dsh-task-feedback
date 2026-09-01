@@ -36,7 +36,7 @@ Design decisions:
 1. `Always` — play sound notifications regardless of tab visibility, whenever the session completes or needs your input.
 2. `Only when hidden` — only play when the tab is not visible (switched away, minimised, display off, etc.), powered by the native [Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API).
 
-**Tech highlight** — all sounds are synthesised in real time via the Web Audio API with zero external dependencies. Hover over any sound option in the settings to preview it.
+**Tech highlight** — all sounds are synthesised in real time via the [Web Audio API](https://github.com/m1ckc3s/procedural-sounds) with zero external dependencies. Hover over any sound option in the settings to preview it.
 
 All settings (favicon shape, sound scope, sound selection) are configured in **Settings → Feedback** and persisted to localStorage.
 

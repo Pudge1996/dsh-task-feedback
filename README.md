@@ -36,7 +36,7 @@ dsh plugin --profile web add dsh-feedback
 1. `始终播放`：无论页面是否可见，只要当前会话已完成或需要人工介入，就播放音频提示；
 2. `仅页面不可见时播放`：仅在页面不可见时（切走标签页、最小化、关闭显示器等）播放音频（原生 [Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API) 实现）
 
-**技术亮点** - 所有可选音效均由 Web Audio API 合成，零外部依赖。鼠标悬停即可试听。
+**技术亮点** - 所有可选音效均由 [Web Audio API](https://github.com/m1ckc3s/procedural-sounds) 合成，零外部依赖。鼠标悬停即可试听。
 
 所有设置项（Favicon 形状、音效作用域、音效选择）均在 **设置 → 反馈** 中配置，持久化在 localStorage 中。
 
