@@ -1,5 +1,5 @@
 /**
- * dsh-feedback — sound synthesis module.
+ * dsh-task-feedback — sound synthesis module.
  *
  * Uses Web Audio API (OscillatorNode + GainNode + effects) to synthesise
  * notification sounds from Patch recipes with zero external dependencies.

@@ -1,5 +1,5 @@
 /**
- * dsh-feedback — client half.
+ * dsh-task-feedback — client half.
  *
  * When the browser tab is hidden AND the user is inside a session page
  * (detected via document.title containing " — " per DSH's DocumentTitle
@@ -169,7 +169,7 @@ export function apply(ctx) {
 
   // Inject segmented-control styles.
   const styleEl = document.createElement('style')
-  styleEl.id = 'dsh-feedback-settings-style'
+  styleEl.id = 'dsh-task-feedback-settings-style'
   styleEl.textContent = SETTINGS_CSS
   ;(document.head || document.documentElement).appendChild(styleEl)
 

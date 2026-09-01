@@ -1,7 +1,7 @@
-# dsh-feedback
+# dsh-task-feedback
 
-[![npm version](https://img.shields.io/npm/v/dsh-feedback)](https://www.npmjs.com/package/dsh-feedback)
-[![license](https://img.shields.io/npm/l/dsh-feedback)](https://github.com/Pudge1996/dsh-feedback/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/dsh-task-feedback)](https://www.npmjs.com/package/dsh-task-feedback)
+[![license](https://img.shields.io/npm/l/dsh-task-feedback)](https://github.com/Pudge1996/dsh-task-feedback/blob/main/LICENSE)
 
 [中文](README.md) | English
 
@@ -12,7 +12,7 @@ A session status feedback plugin for [DeepSeek Harness](https://github.com/deeps
 ## Install
 
 ```sh
-dsh plugin --profile web add dsh-feedback
+dsh plugin --profile web add dsh-task-feedback
 ```
 
 ## Favicon indicator

@@ -1,11 +1,11 @@
-# dsh-feedback profile bundle patch (declared by the `dsh.bundle.patch`
+# dsh-task-feedback profile bundle patch (declared by the `dsh.bundle.patch`
 # manifest field): applied when this package appears in a profile's
 # `dsh.profile.bundles` list.
 #
 # One host row; the browser half is discovered automatically through the
 # package.json `dsh.client` declaration (served at
-# /plugins/dsh-feedback/client.js).
+# /plugins/dsh-task-feedback/client.js).
 
 - insert:
     - id: feedback
-      name: 'dsh-feedback'
+      name: 'dsh-task-feedback'

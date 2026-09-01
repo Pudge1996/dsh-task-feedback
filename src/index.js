@@ -1,5 +1,5 @@
 /**
- * dsh-feedback — host half.
+ * dsh-task-feedback — host half.
  *
  * The browser half owns the entire feature (favicon swap via ctx.effect).
  * There are no commands, services, or session hooks to register here, but the

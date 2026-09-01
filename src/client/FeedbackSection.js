@@ -22,10 +22,10 @@ import { PATCHES } from './procedural-patches.js'
 const WARNING_IDS = [...PATCHES.filter(p => p.category === 'warning' || p.category === 'both').map(p => p.id), 'none']
 const DONE_IDS    = [...PATCHES.filter(p => p.category === 'done'    || p.category === 'both').map(p => p.id), 'none']
 
-const STYLE_KEY = 'dsh-feedback:style'
-const SOUND_SCOPE_KEY = 'dsh-feedback:sound-scope'
-const SOUND_WARNING_KEY = 'dsh-feedback:sound-warning'
-const SOUND_DONE_KEY = 'dsh-feedback:sound-done'
+const STYLE_KEY = 'dsh-task-feedback:style'
+const SOUND_SCOPE_KEY = 'dsh-task-feedback:sound-scope'
+const SOUND_WARNING_KEY = 'dsh-task-feedback:sound-warning'
+const SOUND_DONE_KEY = 'dsh-task-feedback:sound-done'
 
 /** Valid style values. */
 const STYLES = ['dot', 'solid-dot', 'rect']

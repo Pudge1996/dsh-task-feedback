@@ -1,5 +1,5 @@
 {
-  "name": "dsh-feedback",
+  "name": "dsh-task-feedback",
   "version": "0.1.0",
   "description": "Live session status on the browser tab favicon — green idle, blue running, red when waiting for you.",
   "type": "module",
@@ -32,7 +32,7 @@
   "author": "Pudge1996",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Pudge1996/dsh-feedback"
+    "url": "https://github.com/Pudge1996/dsh-task-feedback"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1"
