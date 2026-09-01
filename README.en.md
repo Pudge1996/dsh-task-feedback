@@ -19,6 +19,8 @@ dsh plugin --profile web add dsh-task-feedback
 
 When you switch away from the tab, the DSH favicon turns into a coloured dot that reflects the current session state in real time:
 
+<img width="3578" height="780" alt="image" src="https://github.com/user-attachments/assets/32be5ec9-2e60-4309-9b10-12ad4f18ae8b" />
+
 1. **Green** — the current task has completed.
 2. **Blue** — the current task is in progress or a subagent is running.
 3. **Amber** — needs your input (approval, plan confirmation, answering a question, etc.).
@@ -30,6 +32,8 @@ Design decisions:
 3. Configurable shapes: `Small dot` | `Circle` | `Rounded rectangle`.
 
 ## Sound notifications
+
+<img width="1121" height="628" alt="image" src="https://github.com/user-attachments/assets/f6cd6147-e6ea-408d-8172-eda159ef4f3b" />
 
 12 hand-picked synthesised sounds. Choose different sounds for "task done" and "needs your input", and control when they play:
 
