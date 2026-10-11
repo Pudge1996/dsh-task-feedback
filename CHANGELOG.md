@@ -2,6 +2,14 @@
 
 本项目的所有重要改动都记录在此文件。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 变更
+
+- 移除未使用的 `@deepseek-ai/cordis` `peerDependencies`：host half 是零 import 的 no-op，该 peer 实际从未被使用；删除后消费者安装不再出现 peer 警告。
+- 修正 npm `description`：原文写「red when waiting for you」，实际等待介入时是橙色，且未提及音效功能。
+- 扩充 `keywords`：补 `notification` / `sound` / `web-audio` / `desktop`。
+
 ## [0.2.0] - 2026-10-11
 
 ### 新增
