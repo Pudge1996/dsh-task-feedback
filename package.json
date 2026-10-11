@@ -1,6 +1,6 @@
 {
   "name": "dsh-task-feedback",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Live session status on the browser tab favicon — green idle, blue running, red when waiting for you.",
   "type": "module",
   "engines": {
@@ -13,9 +13,10 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "lib/*.js",
+    "lib",
     "src",
     "cordis.patch.yml",
+    "CHANGELOG.md",
     "README.md"
   ],
   "scripts": {
@@ -43,7 +44,10 @@
   },
   "dsh": {
     "client": {
-      "platform": "web"
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-primitives"
+      ]
     },
     "bundle": {
       "patch": "./cordis.patch.yml"

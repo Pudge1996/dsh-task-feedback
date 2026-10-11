@@ -18,13 +18,22 @@
  * favicon is restored immediately.
  *
  * Sound notifications: configurable per event (warning / done) with a
- * global sound-scope setting that controls when sounds play — never,
- * only when the tab is hidden, or always (even when the tab is visible).
+ * global sound-scope setting that controls when sounds play — only while the
+ * page is away from the user (tab hidden *or* window unfocused), or always
+ * (even while you are looking at the page).
  *
  * Settings section: registers a "Feedback" section in the Settings side panel
  * that lets the user pick one of three indicator shapes
  * (dot, solid-dot, rect) and two sound effects (warning / done). All
  * choices are persisted to localStorage and take effect immediately.
+ *
+ * Host contract (two generation-dependent reads, both feature-detected):
+ *   - the main-view Session id — `SessionListState.current` until
+ *     0.1.6-alpha.2, then `uiSession.adapter.current` / `retainedBy.mainView`;
+ *   - the pending interaction — `uiSession.pendingInteractions` until
+ *     0.1.6-alpha.2, then `uiSession.sessionStatus`.
+ * The icon surface is every `link[rel="icon"]`, because the shell qualifies
+ * the static favicons with `media` since 0.1.7-alpha.1.
  */
 
 import { FeedbackSection, readSoundWarning, readSoundDone, readSoundScope, readStyle } from './FeedbackSection.js'
@@ -159,19 +168,25 @@ const SETTINGS_CSS =
   '.dsh-si-chevron{flex:none}'
 
 export function apply(ctx) {
-  const link = document.querySelector('link[rel="icon"]')
-  if (!link) return // no favicon element to update
-
-  const originalHref = link.href
+  // From 0.1.7-alpha.1 the shell qualifies the static favicons with `media`
+  // (a dark and a light link), so the indicator has to drive every
+  // `link[rel="icon"]`, not just the first one.
+  const icons = [...document.querySelectorAll('link[rel="icon"]')]
+    .map((link) => ({ link, href: link.href }))
+  if (icons.length === 0) return // no favicon element to update
 
   // Register locale dictionaries for the settings section.
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'feedback: dictionaries')
 
-  // Inject segmented-control styles.
-  const styleEl = document.createElement('style')
-  styleEl.id = 'dsh-task-feedback-settings-style'
-  styleEl.textContent = SETTINGS_CSS
-  ;(document.head || document.documentElement).appendChild(styleEl)
+  // Inject segmented-control styles; the effect removes them on dispose so an
+  // HMR reload does not stack duplicate style elements.
+  ctx.effect(() => {
+    const styleEl = document.createElement('style')
+    styleEl.id = 'dsh-task-feedback-settings-style'
+    styleEl.textContent = SETTINGS_CSS
+    ;(document.head || document.documentElement).appendChild(styleEl)
+    return () => { styleEl.remove() }
+  }, 'feedback: settings styles')
 
   // Contribute the "Feedback" section to the Settings side panel.
   const t = ctx.locale.bind(NS)
@@ -206,29 +221,77 @@ export function apply(ctx) {
   let previousSessionId = undefined
 
   /**
-   * Whether the current session has a pending user interaction.
-   * From 0.1.2 alpha, `pendingInteraction` was removed from SessionSummary
-   * and moved to a separate `ctx.uiSession.pendingInteractions` Map.
-   * SessionSummary snapshots are frozen — we read the pending flag as a
-   * local variable rather than trying to mutate the frozen object.
+   * Whether the browser window currently owns keyboard focus.
+   *
+   * The 'hidden' sound scope means "play while the user is away", and being
+   * away is not only the Page Visibility API: switching to another application
+   * (or another window) blurs this window while the tab stays *visible*.
+   * `document.hasFocus()` seeds the initial value so a plugin mounting into an
+   * already-unfocused window starts out correct; the window focus/blur events
+   * keep it live afterwards.
    */
-  function pendingFor(state) {
-    // Old API: pendingInteraction is a boolean on SessionSummary itself.
-    if ('pendingInteraction' in (state.byId[state.current] ?? {})) {
-      return !!state.byId[state.current].pendingInteraction
-    }
-    // New API (0.1.2 alpha+): query the separate pendingInteractions Map.
-    return ctx.uiSession.pendingInteractions.getSnapshot().has(state.current)
+  let windowFocused = typeof document.hasFocus === 'function' ? document.hasFocus() : true
+
+  /** True while the page is away from the user: hidden tab or unfocused window. */
+  function isAway() {
+    return document.hidden || !windowFocused
   }
+
+  /**
+   * Resolve the Session id the main view currently shows.
+   *
+   * 0.1.6-alpha.2 removed `SessionListState.current`: main-view occupancy is
+   * now a per-source reference count (`SessionSummary.retainedBy.mainView`).
+   * The slot-scope adapter's current binding carries the same fact on both
+   * host generations, so read it first and fall back to the catalog marker.
+   */
+  function mainSessionId() {
+    const binding = ctx.uiSession.adapter?.current?.getSnapshot?.()
+    if (binding !== undefined && binding.key !== undefined) return binding.key
+    const state = ctx.sessions.list.getSnapshot()
+    return Object.values(state.byId).find((row) => (row.retainedBy?.mainView ?? 0) > 0)?.id
+  }
+
+  /**
+   * The host's pending-interaction source.
+   *
+   * 0.1.2-alpha.1 exposed `uiSession.pendingInteractions`; 0.1.6-alpha.2
+   * replaced it with the unified `uiSession.sessionStatus` snapshot, whose
+   * `SessionStatus` carries `pendingInteraction` (plus `running` and
+   * `completionUnread`). Normalize both to "does this session have a pending
+   * interaction", so the plugin serves either host generation.
+   * Returns null when neither source exists.
+   */
+  function pendingSource() {
+    const sessionStatus = ctx.uiSession.sessionStatus
+    if (sessionStatus !== undefined) {
+      return {
+        subscribe: (fn) => sessionStatus.subscribe(fn),
+        has: (sessionId) => sessionStatus.getSnapshot().get(sessionId)?.pendingInteraction !== undefined,
+      }
+    }
+    const legacy = ctx.uiSession.pendingInteractions
+    if (legacy !== undefined) {
+      return {
+        subscribe: (fn) => legacy.subscribe(fn),
+        has: (sessionId) => legacy.getSnapshot().has(sessionId),
+      }
+    }
+    return null
+  }
+
+  const pending = pendingSource()
 
   /** Capture the current session's derived state; returns null when not on a session page. */
   function currentDerived(list) {
     if (!document.title.includes(' — ')) return null
+    const sessionId = mainSessionId()
+    if (sessionId === undefined) return null
     const state = list.getSnapshot()
-    const session = state.current ? state.byId[state.current] : undefined
+    const session = state.byId[sessionId]
     if (!session) return null
-    const runningSubs = countRunningSubagents(state.current, state.byId)
-    return deriveState(session, runningSubs, pendingFor(state))
+    const runningSubs = countRunningSubagents(sessionId, state.byId)
+    return deriveState(session, runningSubs, pending !== null && pending.has(sessionId))
   }
 
   /**
@@ -262,14 +325,13 @@ export function apply(ctx) {
 
   /**
    * Check for state transitions and play the appropriate sound.
-   * Respects the sound scope setting: 'hidden' only fires when the tab
-   * is hidden, 'always' fires regardless.
+   * Respects the sound scope setting: 'hidden' only fires while the page is
+   * away (tab hidden or window blurred), 'always' fires regardless.
    */
   function handleSound(list) {
     const scope = readSoundScope()
-    if (scope === 'hidden' && !document.hidden) return
-    const state = list.getSnapshot()
-    const sessionId = state.current
+    if (scope === 'hidden' && !isAway()) return
+    const sessionId = mainSessionId()
     const current = notificationState(list)
     if (current === null) return
 
@@ -300,14 +362,17 @@ export function apply(ctx) {
     }
   }
 
+  /** Point every icon link at `href`; `null` restores each link's original. */
+  function setIcon(href) {
+    for (const icon of icons) {
+      const next = href ?? icon.href
+      if (icon.link.href !== next) icon.link.href = next
+    }
+  }
+
   // Apply the correct favicon based on current visibility + session state.
   function refresh(list) {
-    if (document.hidden) {
-      const href = indicatorForCurrent(list) ?? originalHref
-      if (link.href !== href) link.href = href
-    } else {
-      if (link.href !== originalHref) link.href = originalHref
-    }
+    setIcon(document.hidden ? indicatorForCurrent(list) : null)
     handleSound(list)
   }
 
@@ -316,15 +381,26 @@ export function apply(ctx) {
 
     refresh(list)
     const unsubSessions = list.subscribe(() => refresh(list))
-    const unsubPending = ctx.uiSession.pendingInteractions.subscribe(() => refresh(list))
+    // Main-view switches change the indicator's subject; the pending source
+    // changes its state (either source is absent on the other generation).
+    const unsubPending = pending === null ? () => {} : pending.subscribe(() => refresh(list))
+    const unsubMain = ctx.uiSession.adapter?.current?.subscribe?.(() => refresh(list)) ?? (() => {})
+
+    /**
+     * Seed the transition tracker at the instant the page goes away, so the
+     * first sound only fires on a genuine state change *after* that moment
+     * (a change that already happened while the user was watching is not
+     * replayed the moment they switch away).
+     */
+    function seedTracker() {
+      previousNotification = notificationState(list)
+    }
 
     function onVisibilityChange() {
       if (document.hidden) {
         // Capture the baseline at the instant the tab is hidden.
         baseline = currentDerived(list)
-        // Seed the previous-notification tracker so the first sound only fires
-        // on a genuine state change after hiding.
-        previousNotification = notificationState(list)
+        seedTracker()
       } else {
         // Clear the baseline and sound tracker when the tab becomes visible.
         baseline = undefined
@@ -333,13 +409,36 @@ export function apply(ctx) {
       }
       refresh(list)
     }
+
+    /**
+     * Window blur — the user switched to another application/window while this
+     * tab stayed visible. From here on the page counts as "away" for the
+     * 'hidden' sound scope; focus coming back does not clear the tracker
+     * (only a re-blur re-seeds it, so 'always' mode keeps its live tracking).
+     */
+    function onBlur() {
+      windowFocused = false
+      seedTracker()
+      refresh(list)
+    }
+
+    function onFocus() {
+      windowFocused = true
+      refresh(list)
+    }
+
     document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('blur', onBlur)
+    window.addEventListener('focus', onFocus)
 
     return () => {
       unsubSessions()
       unsubPending()
+      unsubMain()
       document.removeEventListener('visibilitychange', onVisibilityChange)
-      if (link.href !== originalHref) link.href = originalHref
+      window.removeEventListener('blur', onBlur)
+      window.removeEventListener('focus', onFocus)
+      setIcon(null)
     }
   })
 }

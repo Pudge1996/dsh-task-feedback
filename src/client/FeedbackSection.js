@@ -14,9 +14,22 @@
  */
 
 import { createElement as h, useEffect, useRef, useState } from 'react'
-import { IconChevronDownOutline14, Menu } from '@deepseek-ai/dsh-client-ui-primitives'
+import * as primitives from '@deepseek-ai/dsh-client-ui-primitives'
 import { playSound, soundLabelKey } from './sounds.js'
 import { PATCHES } from './procedural-patches.js'
+import { isDesktopUI } from './platform.js'
+
+const { Menu } = primitives
+
+/**
+ * Chevron used by the dropdown triggers.
+ *
+ * DSH-0.1.7-A1 renamed the weight-suffixed icon exports (`IconChevronDownOutline14`
+ * → `IconChevronDownOutlineRegular` / `…Medium`). A missing export does not fail
+ * at import time — it becomes `undefined` as an element type and takes the whole
+ * settings section down at render (React error #130), so accept either name.
+ */
+const IconChevronDown = primitives.IconChevronDownOutlineRegular ?? primitives.IconChevronDownOutline14
 
 /** Sound ids for each picker, filtered by category. */
 const WARNING_IDS = [...PATCHES.filter(p => p.category === 'warning' || p.category === 'both').map(p => p.id), 'none']
@@ -148,7 +161,7 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix })
         onClick: () => { setOpen((v) => !v) },
       },
         t(value === 'none' ? prefix + 'None' : labelPrefix === 'scope' ? prefix + value.charAt(0).toUpperCase() + value.slice(1) : t(soundLabelKey(value))),
-        h(IconChevronDownOutline14, { className: 'dsh-si-chevron' }),
+        h(IconChevronDown, { className: 'dsh-si-chevron' }),
       ),
     }),
   )
@@ -156,10 +169,17 @@ function SoundRow({ t, titleKey, descKey, value, onChange, items, labelPrefix })
 
 /**
  * Render the full settings section: favicon style + sound scope + two sound pickers.
+ *
+ * The favicon group (heading + shape row + that row's divider) is Web-only:
+ * a Desktop shell window has no browser tab strip, so the indicator cannot be
+ * seen there and the setting would be meaningless.  Resolved once per render.
+ *
  * @param {{ t: (key: string) => string }} props
  */
 export function FeedbackSection({ t }) {
   useSoundHoverPreview()
+
+  const showFavicon = !isDesktopUI()
 
   const [style, setStyle] = useState(readStyle)
   const [styleOpen, setStyleOpen] = useState(false)
@@ -229,7 +249,7 @@ export function FeedbackSection({ t }) {
         onClick: () => { setStyleOpen((v) => !v) },
       },
         t(style),
-        h(IconChevronDownOutline14, { className: 'dsh-si-chevron' }),
+        h(IconChevronDown, { className: 'dsh-si-chevron' }),
       ),
     }),
   )
@@ -268,5 +288,11 @@ export function FeedbackSection({ t }) {
     key: 'sound-done',
   })
 
-  return h('div', null, statusHeading, styleRow, soundHeading, scopeRow, warningRow, doneRow)
+  // Null children produce no DOM node, so omitting the favicon group also lets
+  // the sound heading become :first-child and drop its leading gap.
+  return h('div', null,
+    showFavicon ? statusHeading : null,
+    showFavicon ? styleRow : null,
+    soundHeading, scopeRow, warningRow, doneRow,
+  )
 }
