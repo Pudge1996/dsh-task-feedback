@@ -1,6 +1,6 @@
 {
   "name": "dsh-task-feedback",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Tab favicon indicator and synthesised notification sounds for DeepSeek Harness — glance at the tab to see whether a session is running, waiting for you, or done.",
   "type": "module",
   "engines": {

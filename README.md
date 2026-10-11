@@ -25,10 +25,10 @@ DSH 的客户端 API 在 `rc.x` → `alpha.x` 之间**前向不兼容**：装错
 
 | 你的 DSH | 建议安装 |
 |---|---|
-| `0.2.x`（已在 `v0.2.1-alpha.2` 上实测） | `dsh plugin --profile <profile> add dsh-task-feedback`（最新，当前 `0.2.0`） |
+| `0.2.x`（已在 `v0.2.1-alpha.2` 上实测） | `dsh plugin --profile <profile> add dsh-task-feedback`（最新，当前 `0.2.1`） |
 | `0.1.2-alpha.1` ~ `0.1.x` | `dsh plugin --profile <profile> add dsh-task-feedback@0.1.0` |
 
-> 主视图会话与待介入状态的读取都做了双代次兼容，`0.2.0` 在旧版 DSH 上通常也能运行；但上表中只有 `0.2.0` × `v0.2.1-alpha.2` 这一组经过本版本实测。
+> 主视图会话与待介入状态的读取都做了双代次兼容，`0.2.x` 在旧版 DSH 上通常也能运行；但上表中只有 `0.2.x` × `v0.2.1-alpha.2` 这一组经过本版本实测（`0.2.1` 相对 `0.2.0` 仅元数据变更，运行时代码逐字节一致）。
 
 ## Favicon 实时回显会话状态
 

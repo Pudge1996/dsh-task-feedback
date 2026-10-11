@@ -25,10 +25,10 @@ The DSH client API is **not forward-compatible** across `rc.x` → `alpha.x`: a 
 
 | Your DSH | Install |
 |---|---|
-| `0.2.x` (verified on `v0.2.1-alpha.2`) | `dsh plugin --profile <profile> add dsh-task-feedback` (latest, currently `0.2.0`) |
+| `0.2.x` (verified on `v0.2.1-alpha.2`) | `dsh plugin --profile <profile> add dsh-task-feedback` (latest, currently `0.2.1`) |
 | `0.1.2-alpha.1` – `0.1.x` | `dsh plugin --profile <profile> add dsh-task-feedback@0.1.0` |
 
-> The main-view session and pending-interaction reads are dual-generation compatible, so `0.2.0` usually runs on older DSH as well; only the `0.2.0` × `v0.2.1-alpha.2` pairing above has been verified for this release.
+> The main-view session and pending-interaction reads are dual-generation compatible, so `0.2.x` usually runs on older DSH as well; only the `0.2.x` × `v0.2.1-alpha.2` pairing above has been verified for this release (`0.2.1` differs from `0.2.0` in metadata only — the runtime code is byte-identical).
 
 ## Favicon indicator
 

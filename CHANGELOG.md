@@ -2,11 +2,13 @@
 
 本项目的所有重要改动都记录在此文件。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [0.2.1] - 2026-10-11
+
+仅元数据变更，运行时代码与 `0.2.0` 完全一致。
 
 ### 变更
 
-- 移除未使用的 `@deepseek-ai/cordis` `peerDependencies`：host half 是零 import 的 no-op，该 peer 实际从未被使用；删除后消费者安装不再出现 peer 警告。
+- 移除未使用的 `@deepseek-ai/cordis` `peerDependencies`：host half 是零 import 的 no-op，该 peer 实际从未被使用；它的版本范围还会静默排除 harness 的预发布构建，删除后消费者安装不再出现 peer 警告。
 - 修正 npm `description`：原文写「red when waiting for you」，实际等待介入时是橙色，且未提及音效功能。
 - 扩充 `keywords`：补 `notification` / `sound` / `web-audio` / `desktop`。
 
@@ -40,5 +42,6 @@
 - **音效作用域**：`全部` 与 `仅当页面不可见时`。
 - **设置 → 反馈** 面板，所有选项持久化在 localStorage 中。
 
+[0.2.1]: https://github.com/Pudge1996/dsh-task-feedback/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Pudge1996/dsh-task-feedback/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Pudge1996/dsh-task-feedback/releases/tag/v0.1.0
